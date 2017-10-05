@@ -1,0 +1,323 @@
+{
+  "$version": "test-case/v1",
+  "steps": [
+    {
+      "key": "2tmukMOZmFRvywEgjj40oc",
+      "name": "Reset",
+      "action": {
+        "key": "2Plbk7u77eazIJ05KqRklF",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/reset"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "3ojahM5ZhfFXTkK2ETts6M",
+      "name": "Fund P1 300",
+      "action": {
+        "key": "X3bbjSHHTRKmq3C5lXcGZ",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/fund?playerId=P1&points=300"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "53iE5AYzDRJ16elZf7MZ4L",
+      "name": "Fund P2 300",
+      "action": {
+        "key": "5Vac8CHyv5LjfIdtkKX4KN",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/fund?playerId=P2&points=300"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "4TrvacIC3MAEx8y8AK4ryV",
+      "name": "Fund P3 300",
+      "action": {
+        "key": "2sOVapiHOz3HlZfJaLRLqz",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/fund?playerId=P3&points=300"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "7xVvzBSCh3flQSwputfqCQ",
+      "name": "Fund P4 500",
+      "action": {
+        "key": "XZtngGxMiszBD2KthY7gk",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/fund?playerId=P4&points=500"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "4WQviKNHaxJNEKZr8FzoNK",
+      "name": "Fund P5 1000",
+      "action": {
+        "key": "2LuIU1U8RhXIDemFGmFDa4",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/fund?playerId=P5&points=1000"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "5RrgkMacjLErqeiAqzJZPX",
+      "name": "announceTournament",
+      "action": {
+        "key": "5yyByJ7nLoyaOsKzhRw1wJ",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/announceTournament?tournamentId=1&deposit=1000"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "1EwZkt2EthMJnQCYpSbkAr",
+      "name": "joinTournament P5",
+      "action": {
+        "key": "2A529acwTlv9IiQglGxfZy",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/joinTournament?tournamentId=1&playerId=P5"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "7bUES20yxL5bf875Ih4RiY",
+      "name": "joinTournament P1",
+      "action": {
+        "key": "6ZgVJDeUVDutkXV76dswMY",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/joinTournament?tournamentId=1&playerId=P1&backerId=P2&backerId=P3&backerId=P4"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "4mV6YrMO6wUXY3yuJKLqlo",
+      "name": "resultTournament",
+      "action": {
+        "key": "4FWfifsTt5hKUFafJqpFBE",
+        "type": "http-request",
+        "properties": {
+          "Method": "POST",
+          "Url": "http://127.0.0.1/resultTournament?tournamentId=1",
+          "Body": "{\"tournamentId\":\"1\", \"winners\": [{\"playerId\": \"P1\", \"prize\": 2000}]}",
+          "Headers": "[{\"Content-Type\":\"application/json; charset=utf-8\"}]"
+        }
+      },
+      "verifications": []
+    },
+    {
+      "key": "5mVZiOVxwKNPN1CGB4kv7h",
+      "name": "Verify balance P1",
+      "action": {
+        "key": "mwTtI6E5dXrfra840RHco",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/balance?playerId=P1"
+        }
+      },
+      "verifications": [
+        {
+          "key": "6QutFRNfkRksAnEqSNoQBx",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "IgnoreCase": false,
+            "Expectation": "P1",
+            "SourcePath": "playerId"
+          }
+        },
+        {
+          "key": "5JFkUUUrL1s2wwEqkMSdX3",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "SourcePath": "balance",
+            "Expectation": "550"
+          }
+        }
+      ]
+    },
+    {
+      "key": "5QfUo55BoJIbihnoNJsHw0",
+      "name": "Verify balance P2",
+      "action": {
+        "key": "5Mz2YzaFP5dUGAah71P6Dw",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/balance?playerId=P2"
+        }
+      },
+      "verifications": [
+        {
+          "key": "5YMU72qWsQMqgA3NJnHh4z",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "IgnoreCase": false,
+            "Expectation": "P2",
+            "SourcePath": "playerId"
+          }
+        },
+        {
+          "key": "5aUlezJYNC8hDssKZYmA5V",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "SourcePath": "balance",
+            "Expectation": "550"
+          }
+        }
+      ]
+    },
+    {
+      "key": "1oPDiFXTXsikFOlMufpLu5",
+      "name": "Verify balance P3",
+      "action": {
+        "key": "3Y9SkB3Jhe2hM5a8yOrJ4c",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/balance?playerId=P3"
+        }
+      },
+      "verifications": [
+        {
+          "key": "4jCDRvMA0XjY3jUb3MIEOP",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "IgnoreCase": false,
+            "Expectation": "P3",
+            "SourcePath": "playerId"
+          }
+        },
+        {
+          "key": "43Aj3D2KZxQE4NzNdt6F4c",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "SourcePath": "balance",
+            "Expectation": "550"
+          }
+        }
+      ]
+    },
+    {
+      "key": "7hQP0VoJ27rniKSnlIyBBE",
+      "name": "Verify balance P4",
+      "action": {
+        "key": "5ChVI59LKmZMFLLoeeT2lK",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/balance?playerId=P4"
+        }
+      },
+      "verifications": [
+        {
+          "key": "3FSFEkFgSGCwEwstBHHJeH",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "IgnoreCase": false,
+            "Expectation": "P4",
+            "SourcePath": "playerId"
+          }
+        },
+        {
+          "key": "2AM5apC3YewEogF3B9Y2of",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "SourcePath": "balance",
+            "Expectation": "750"
+          }
+        }
+      ]
+    },
+    {
+      "key": "12Zrds8GcD3gXR1MMmMIyA",
+      "name": "Verify balance P5",
+      "action": {
+        "key": "XlubQXmwqeoARPZ8cWiAz",
+        "type": "http-request",
+        "properties": {
+          "Method": "GET",
+          "Url": "http://127.0.0.1/balance?playerId=P5"
+        }
+      },
+      "verifications": [
+        {
+          "key": "2nZx0a7dOS81UYELBCaUdK",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "IgnoreCase": false,
+            "Expectation": "P5",
+            "SourcePath": "playerId"
+          }
+        },
+        {
+          "key": "2PQslD6opJxLqVXzXo1wNK",
+          "type": "verify",
+          "properties": {
+            "SourceVariable": "Body",
+            "SourcePathType": "jsonpath",
+            "OperationType": "is-equal",
+            "SourcePath": "balance",
+            "Expectation": "0"
+          }
+        }
+      ]
+    }
+  ],
+  "variables": {}
+}

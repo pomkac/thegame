@@ -1,0 +1,14 @@
+{
+  "$version": "runtime-variables/v1",
+  "scopes": {
+    "3sSw7PJtmawBcxf46lvZtG": {
+      "variables": {}
+    },
+    ".\\Player": {
+      "variables": {}
+    },
+    "4VaupEeSjZDO1sLKYCArTu": {
+      "variables": {}
+    }
+  }
+}

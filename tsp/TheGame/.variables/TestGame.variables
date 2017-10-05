@@ -1,0 +1,207 @@
+{
+  "$version": "runtime-variables/v1",
+  "scopes": {
+    "3ojahM5ZhfFXTkK2ETts6M": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/fund?playerId=P1&points=300",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"0","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "",
+        "ResponseTime": 1,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "53iE5AYzDRJ16elZf7MZ4L": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/fund?playerId=P2&points=300",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"0","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "",
+        "ResponseTime": 2,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "4TrvacIC3MAEx8y8AK4ryV": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/fund?playerId=P3&points=300",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"0","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "",
+        "ResponseTime": 0,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "7xVvzBSCh3flQSwputfqCQ": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/fund?playerId=P4&points=500",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"0","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "",
+        "ResponseTime": 3,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "4WQviKNHaxJNEKZr8FzoNK": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/fund?playerId=P5&points=1000",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"0","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "",
+        "ResponseTime": 1,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "5RrgkMacjLErqeiAqzJZPX": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/announceTournament?tournamentId=1&deposit=1000",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"0","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "",
+        "ResponseTime": 1,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "1EwZkt2EthMJnQCYpSbkAr": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/joinTournament?tournamentId=1&playerId=P5",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"0","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "",
+        "ResponseTime": 1,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "7bUES20yxL5bf875Ih4RiY": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/joinTournament?tournamentId=1&playerId=P1&backerId=P2&backerId=P3&backerId=P4",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"0","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "",
+        "ResponseTime": 3,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "4mV6YrMO6wUXY3yuJKLqlo": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/resultTournament?tournamentId=1",
+        "RequestVerb": "POST",
+        "RequestHeaders": {"Content-Type":"application/json; charset=utf-8","User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1","Content-Length":"68","Expect":"100-continue"},
+        "RequestBody": "{\"tournamentId\":\"1\", \"winners\": [{\"playerId\": \"P1\", \"prize\": 2000}]}",
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"0","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "",
+        "ResponseTime": 50,
+        "ReasonPhrase": "OK"
+      }
+    },
+    ".\\TestGame": {
+      "variables": {}
+    },
+    "5mVZiOVxwKNPN1CGB4kv7h": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/balance?playerId=P1",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"37","Content-Type":"application/json; charset=utf-8","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "{\"playerId\": \"P1\", \"balance\": 550.00}",
+        "ResponseTime": 1,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "2tmukMOZmFRvywEgjj40oc": {
+      "variables": {}
+    },
+    "5QfUo55BoJIbihnoNJsHw0": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/balance?playerId=P2",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"37","Content-Type":"application/json; charset=utf-8","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "{\"playerId\": \"P2\", \"balance\": 550.00}",
+        "ResponseTime": 0,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "1oPDiFXTXsikFOlMufpLu5": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/balance?playerId=P3",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"37","Content-Type":"application/json; charset=utf-8","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "{\"playerId\": \"P3\", \"balance\": 550.00}",
+        "ResponseTime": 1,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "7hQP0VoJ27rniKSnlIyBBE": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/balance?playerId=P4",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"37","Content-Type":"application/json; charset=utf-8","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "{\"playerId\": \"P4\", \"balance\": 750.00}",
+        "ResponseTime": 1,
+        "ReasonPhrase": "OK"
+      }
+    },
+    "12Zrds8GcD3gXR1MMmMIyA": {
+      "variables": {
+        "RequestUrl": "http://127.0.0.1/balance?playerId=P5",
+        "RequestVerb": "GET",
+        "RequestHeaders": {"User-Agent":"Telerik Test Studio for APIs","Host":"127.0.0.1"},
+        "RequestBody": null,
+        "RequestCookies": [],
+        "StatusCode": 200,
+        "Headers": {"Content-Length":"35","Content-Type":"application/json; charset=utf-8","Date":"Thu, 05 Oct 2017 20:23:57 GMT","Server":"fasthttp"},
+        "Body": "{\"playerId\": \"P5\", \"balance\": 0.00}",
+        "ResponseTime": 0,
+        "ReasonPhrase": "OK"
+      }
+    }
+  }
+}

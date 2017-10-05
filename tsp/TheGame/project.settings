@@ -1,0 +1,6 @@
+{
+  "$version": "project-settings/v1",
+  "variables": {
+    "base-url": "http://127.0.0.1"
+  }
+}
