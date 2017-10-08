@@ -18,7 +18,7 @@ type Winner struct {
 func AnnounceTournament(ctx *fasthttp.RequestCtx) {
 	// Check if "tournamentId" and "deposit" exists in query string
 	if !ctx.QueryArgs().Has("tournamentId") || !ctx.QueryArgs().Has("deposit") {
-		ctx.SetStatusCode(400)
+		ctx.SetStatusCode(ERROR_BAD_REQUEST)
 		ctx.SetConnectionClose()
 		return
 	}
@@ -27,14 +27,14 @@ func AnnounceTournament(ctx *fasthttp.RequestCtx) {
 
 	// Check if "deposit" is float
 	if err != nil {
-		ctx.SetStatusCode(400)
+		ctx.SetStatusCode(ERROR_BAD_REQUEST)
 		ctx.SetConnectionClose()
 		return
 	}
 
 	// Check if "deposit" is non-negative number
 	if deposit < 0 {
-		ctx.SetStatusCode(400)
+		ctx.SetStatusCode(ERROR_BAD_REQUEST)
 		ctx.SetConnectionClose()
 		return
 	}
@@ -50,7 +50,7 @@ func AnnounceTournament(ctx *fasthttp.RequestCtx) {
 
 	// Return error if tournament exists
 	if err != nil {
-		ctx.SetStatusCode(406)
+		ctx.SetStatusCode(ERROR_NOT_ACCEPTABLE)
 		ctx.SetConnectionClose()
 		return
 	}
@@ -59,7 +59,7 @@ func AnnounceTournament(ctx *fasthttp.RequestCtx) {
 func JoinTournament(ctx *fasthttp.RequestCtx) {
 	// Check if "tournamentId" and "playerId" exists in query string
 	if !ctx.QueryArgs().Has("tournamentId") || !ctx.QueryArgs().Has("playerId") {
-		ctx.SetStatusCode(400)
+		ctx.SetStatusCode(ERROR_BAD_REQUEST)
 		ctx.SetConnectionClose()
 		return
 	}
@@ -72,21 +72,21 @@ func JoinTournament(ctx *fasthttp.RequestCtx) {
 
 	// Return error if tournament not exists
 	if err != nil {
-		ctx.SetStatusCode(404)
+		ctx.SetStatusCode(ERROR_NOT_FOUND)
 		ctx.SetConnectionClose()
 		return
 	}
 
-	// Return error if tournament not ended
+	// Return error if tournament ended
 	if tournament.Ended {
-		ctx.SetStatusCode(403)
+		ctx.SetStatusCode(ERROR_FORBIDDEN)
 		ctx.SetConnectionClose()
 		return
 	}
 
 	// Return error if player exists in current tournament
 	if _, ok := tournament.Players[playerId]; ok{
-		ctx.SetStatusCode(406)
+		ctx.SetStatusCode(ERROR_NOT_ACCEPTABLE)
 		ctx.SetConnectionClose()
 		return
 	}
@@ -95,7 +95,7 @@ func JoinTournament(ctx *fasthttp.RequestCtx) {
 
 	// Return error if player not exists
 	if err != nil {
-		ctx.SetStatusCode(404)
+		ctx.SetStatusCode(ERROR_NOT_FOUND)
 		ctx.SetConnectionClose()
 		return
 	}
@@ -112,7 +112,7 @@ func JoinTournament(ctx *fasthttp.RequestCtx) {
 			backer, err := db.Players.Get(string(backerIds[i]))
 			// Return error if backer not exists
 			if err != nil {
-				ctx.SetStatusCode(404)
+				ctx.SetStatusCode(ERROR_NOT_FOUND)
 				ctx.SetConnectionClose()
 				return
 			}
@@ -127,7 +127,7 @@ func JoinTournament(ctx *fasthttp.RequestCtx) {
 	// Check player balance
 	for i := 0; i < len(tPlayer.Bakers); i++ {
 		if tPlayer.Bakers[i].Points < bid {
-			ctx.SetStatusCode(402)
+			ctx.SetStatusCode(ERROR_PAYMENT_REQUIRED)
 			ctx.SetConnectionClose()
 			return
 		}
@@ -148,7 +148,7 @@ func ResultTournament(ctx *fasthttp.RequestCtx) {
 
 	// Return error if request is not valid
 	if err != nil {
-		ctx.SetStatusCode(400)
+		ctx.SetStatusCode(ERROR_BAD_REQUEST)
 		ctx.SetConnectionClose()
 		return
 	}
@@ -157,7 +157,7 @@ func ResultTournament(ctx *fasthttp.RequestCtx) {
 
 	// Return error if tournament not exists
 	if err != nil {
-		ctx.SetStatusCode(404)
+		ctx.SetStatusCode(ERROR_NOT_FOUND)
 		ctx.SetConnectionClose()
 		return
 	}
