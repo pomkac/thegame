@@ -3,42 +3,89 @@ package db
 import "errors"
 
 
+const TablePlayer = "player"
+
 type Player struct {
 	ID     string  `json:"playerId"`
 	Points float64 `json:"balance"`
 }
 
-type dbPlayers struct {
-	Data map[string]*Player
+type players struct{}
+
+
+var Players = &players{}
+
+
+func (p *players) Get(id string)  (*Player, error){
+	txn := DB.Txn(false)
+	defer txn.Abort()
+	raw, err := txn.First(TablePlayer, "id", id)
+	if err != nil {
+		return &Player{}, err
+	}
+
+	if raw == nil{
+		return nil, E_DB_NOT_FOUND
+	}
+	return raw.(*Player), nil
 }
 
-func (ps *dbPlayers) Get(id string) (*Player, error){
-	if p, ok := ps.Data[id]; ok{
-		return p, nil
+func (p *players) DeleteAll() error{
+	txn := DB.Txn(true)
+	if _, err := txn.DeleteAll(TablePlayer, "id"); err != nil {
+		return err
 	}
-	return nil, errors.New("not found")
-}
-
-func (ps *dbPlayers) Set(p *Player) error{
-	if p.ID == ""{
-		return errors.New("invalid player ID")
-	}
-	if _, ok := ps.Data[p.ID]; ok{
-		return errors.New("duplicate player ID")
-	}
-	ps.Data[p.ID] = p
+	txn.Commit()
 	return nil
 }
 
-func (ps *dbPlayers) Clear(){
-	for k := range ps.Data {
-		delete(ps.Data, k)
+func (p *Player) Save() error{
+	if p.ID == ""{
+		return errors.New("invalid player ID")
 	}
+	txn := DB.Txn(true)
+	if err := txn.Insert(TablePlayer, p); err != nil {
+		txn.Abort()
+		return err
+	}
+	txn.Commit()
+	return nil
 }
 
-var Players *dbPlayers
+func (p *Player) FundTake(points float64) (err error){
+	if p.ID == ""{
+		return E_DB_INVALID_ID
+	}
+	txn := DB.Txn(true)
 
-func init(){
-	Players = &dbPlayers{}
-	Players.Data = make(map[string]*Player)
+	defer func(){
+		if err != nil{
+			txn.Abort()
+			return
+		}
+		txn.Commit()
+	}()
+
+	raw, err := txn.First(TablePlayer, "id", p.ID)
+	if err != nil {
+		return err
+	}
+
+	if raw != nil{
+		*p = *raw.(*Player)
+	}
+
+	if p.Points + points < 0{
+		return 	E_DB_INVALID_VALUE
+	}
+
+	p.Points += points
+
+	if err := txn.Insert(TablePlayer, p); err != nil {
+		return err
+	}
+
+	return nil
 }
+
+

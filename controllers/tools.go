@@ -20,7 +20,7 @@ const (
 
 func Reset(ctx *fasthttp.RequestCtx) {
 	// Clear Players DB
-	db.Players.Clear()
+	db.Players.DeleteAll()
 	// Clear Tournaments DB
 	db.Tournaments.Clear()
 	// Clear memory
