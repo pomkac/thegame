@@ -1,28 +1,31 @@
 package main
 
 import (
-	"github.com/buaazp/fasthttprouter"
 	"log"
+	"runtime"
+	"github.com/qiangxue/fasthttp-routing"
 	"github.com/valyala/fasthttp"
 	"github.com/pomkac/thegame/controllers"
 )
 
 func main() {
-	router := fasthttprouter.New()
+	runtime.GOMAXPROCS(1)
+
+	router := routing.New()
 
 	// Player routes
-	router.GET("/fund", controllers.PlayerFund)
-	router.GET("/take", controllers.PlayerTake)
-	router.GET("/balance", controllers.PlayerBalance)
+	router.Get("/fund", controllers.PlayerFund)
+	router.Get("/take", controllers.PlayerTake)
+	router.Get("/balance", controllers.PlayerBalance)
 
 	// Tournament routes
-	router.GET("/announceTournament", controllers.AnnounceTournament)
-	router.GET("/joinTournament", controllers.JoinTournament)
-	router.POST("/resultTournament", controllers.ResultTournament)
+	router.Get("/announceTournament", controllers.AnnounceTournament)
+	router.Get("/joinTournament", controllers.JoinTournament)
+	router.Post("/resultTournament", controllers.ResultTournament)
 
 	// Reset route
-	router.GET("/reset", controllers.Reset)
+	router.Get("/reset", controllers.Reset)
 
 	// Serve
-	log.Fatal(fasthttp.ListenAndServe(":80", router.Handler))
+	log.Fatal(fasthttp.ListenAndServe(":80", router.HandleRequest))
 }

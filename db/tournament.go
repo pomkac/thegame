@@ -1,50 +1,42 @@
 package db
 
-import "errors"
+import (
+	"github.com/pomkac/mnemonic"
+)
+
+const TableTournament = "tournament_"
 
 type Tournament struct {
-	ID     string
+	ID      string
 	Deposit float64
 	Players map[string]*TournamentPlayer
-	Ended bool
+	Ended   bool
 }
 
 type TournamentPlayer struct {
-	ID string
-	Bakers []*Player
+	ID     string
+	Bakers []Player
 }
 
-type dbTournaments struct {
-	Data map[string]*Tournament
+type tournaments struct{}
+
+var Tournaments = &tournaments{}
+
+func (t *tournaments) Get(id string, conn *mnemonic.Connection) (Tournament, error) {
+	raw, err := conn.Get(TableTournament + id)
+	if err != nil {
+		return Tournament{}, err
+	}
+
+	return raw.(Tournament), nil
 }
 
-func (ps *dbTournaments) Get(id string) (*Tournament, error){
-	if t, ok := ps.Data[id]; ok{
-		return t, nil
+func (t *Tournament) Save(conn *mnemonic.Connection) error {
+	if t.ID == "" {
+		return errorInvalidId
 	}
-	return nil, errors.New("not found")
-}
 
-func (ps *dbTournaments) Set(t *Tournament) error{
-	if t.ID == ""{
-		return errors.New("invalid ID")
-	}
-	if _, ok := ps.Data[t.ID]; ok{
-		return errors.New("duplicate ID")
-	}
-	ps.Data[t.ID] = t
+	conn.Set(TableTournament+t.ID, *t)
+
 	return nil
-}
-
-func (ps *dbTournaments) Clear(){
-	for k := range ps.Data {
-		delete(ps.Data, k)
-	}
-}
-
-var Tournaments *dbTournaments
-
-func init(){
-	Tournaments = &dbTournaments{}
-	Tournaments.Data = make(map[string]*Tournament)
 }

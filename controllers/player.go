@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/valyala/fasthttp"
 	"github.com/pomkac/thegame/db"
-	"fmt"
+	"github.com/qiangxue/fasthttp-routing"
 )
 
 const (
@@ -13,46 +14,8 @@ const (
 	ContentTypeJSON = "application/json; charset=utf-8"
 )
 
-func PlayerFund(ctx *fasthttp.RequestCtx) {
-	// Check if "playerId" and "points" exists in query string
-	if !ctx.QueryArgs().Has(QueryPlayerId) || !ctx.QueryArgs().Has(QueryPoints) {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetConnectionClose()
-		return
-	}
-
-	points, err := ctx.QueryArgs().GetUfloat(QueryPoints)
-
-	// Check if "points" is float
-	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetConnectionClose()
-		return
-	}
-
-	// Check if "points" is non-negative number
-	if points < 0 {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetConnectionClose()
-		return
-	}
-
-	id := string(ctx.QueryArgs().Peek(QueryPlayerId))
-
-	player := &db.Player{ID: id}
-
-	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetConnectionClose()
-		return
-	}
-
-	player.FundTake(points)
-}
-
-func PlayerTake(ctx *fasthttp.RequestCtx) {
-	// Check if "playerId" and "points" exists in query string
-
+func PlayerFund(ctx *routing.Context) (err error) {
+	query := ctx.QueryArgs()
 	respError := fasthttp.StatusOK
 
 	defer func() {
@@ -62,14 +25,14 @@ func PlayerTake(ctx *fasthttp.RequestCtx) {
 		}
 	}()
 
-	if !ctx.QueryArgs().Has(QueryPlayerId) || !ctx.QueryArgs().Has(QueryPoints) {
+	// Check if "playerId" and "points" exists in query string
+	if !query.Has(QueryPlayerId) || !query.Has(QueryPoints) {
 		respError = fasthttp.StatusBadRequest
 		return
 	}
 
-	id := string(ctx.QueryArgs().Peek(QueryPlayerId))
-
-	points, err := ctx.QueryArgs().GetUfloat(QueryPoints)
+	id := string(query.Peek(QueryPlayerId))
+	points, err := query.GetUfloat(QueryPoints)
 
 	// Check if "points" is float and is non-negative number
 	if err != nil || points < 0 {
@@ -77,44 +40,90 @@ func PlayerTake(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	player, err := db.Players.Get(id)
+	player := db.Player{ID: id}
+	conn := db.DB.Conn()
+	player.FundTake(points, &conn)
+	conn.Close()
+	return
+}
+
+func PlayerTake(ctx *routing.Context) (err error) {
+	conn := db.DB.Conn()
+	query := ctx.QueryArgs()
+	respError := fasthttp.StatusOK
+
+	defer func() {
+		conn.Close()
+		if respError != fasthttp.StatusOK {
+			ctx.SetStatusCode(respError)
+			ctx.SetConnectionClose()
+		}
+	}()
+
+	// Check if "playerId" and "points" exists in query string
+	if !query.Has(QueryPlayerId) || !query.Has(QueryPoints) {
+		respError = fasthttp.StatusBadRequest
+		return
+	}
+
+	id := string(query.Peek(QueryPlayerId))
+	points, err := query.GetUfloat(QueryPoints)
+
+	// Check if "points" is float and is non-negative number
+	if err != nil || points < 0 {
+		respError = fasthttp.StatusBadRequest
+		return
+	}
+
+	player, err := db.Players.Get(id, &conn)
 
 	// Check if player exists
-	if player == nil {
+	if player.ID == "" {
 		respError = fasthttp.StatusNotFound
 		return
 	}
 
-	err = player.FundTake(-points)
+	err = player.FundTake(-points, &conn)
 
 	if err != nil {
 		respError = fasthttp.StatusPaymentRequired
 		return
 	}
+	return
 }
 
-func PlayerBalance(ctx *fasthttp.RequestCtx) {
+func PlayerBalance(ctx *routing.Context) (err error) {
+	query := ctx.QueryArgs()
+	respError := fasthttp.StatusOK
+
+	defer func() {
+		if respError != fasthttp.StatusOK {
+			ctx.SetStatusCode(respError)
+			ctx.SetConnectionClose()
+		} else {
+			ctx.SetContentType(ContentTypeJSON)
+		}
+	}()
 
 	// Check if "playerId" exists in query string
-	if !ctx.QueryArgs().Has(QueryPlayerId) {
-		ctx.SetStatusCode(ERROR_BAD_REQUEST)
-		ctx.SetConnectionClose()
+	if !query.Has(QueryPlayerId) {
+		respError = fasthttp.StatusBadRequest
 		return
 	}
 
-	id := string(ctx.QueryArgs().Peek(QueryPlayerId))
+	id := string(query.Peek(QueryPlayerId))
 
-	player, err := db.Players.Get(id)
+	conn := db.DB.Conn()
+	player, err := db.Players.Get(id, &conn)
+	conn.Close()
 
 	// Check if player exists
 	if err != nil {
-		ctx.SetStatusCode(ERROR_NOT_FOUND)
-		ctx.SetConnectionClose()
+		respError = fasthttp.StatusNotFound
 		return
 	}
 
-	ctx.SetContentType(ContentTypeJSON)
-
 	// Format data for "precision 2"
 	fmt.Fprintf(ctx, PlayerTemplate, player.ID, player.Points)
+	return
 }

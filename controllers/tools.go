@@ -1,38 +1,33 @@
 package controllers
 
 import (
-	"github.com/valyala/fasthttp"
-	"github.com/pomkac/thegame/db"
-	"runtime/debug"
+	"errors"
 	"strings"
 	"encoding/json"
-	"errors"
+	"github.com/pomkac/thegame/db"
+	"github.com/qiangxue/fasthttp-routing"
 )
 
 const (
-	INVALID_DATA           = "invalid data"
-	ERROR_BAD_REQUEST      = 400
-	ERROR_PAYMENT_REQUIRED = 402
-	ERROR_FORBIDDEN        = 403
-	ERROR_NOT_FOUND        = 404
-	ERROR_NOT_ACCEPTABLE   = 406
+	strContentType = "Content-Type"
+	strJSON        = "application/json"
 )
 
-func Reset(ctx *fasthttp.RequestCtx) {
-	// Clear Players DB
-	db.Players.DeleteAll()
-	// Clear Tournaments DB
-	db.Tournaments.Clear()
-	// Clear memory
-	debug.FreeOSMemory()
+var errorInvalidData = errors.New("invalid data")
+
+func Reset(_ *routing.Context) error {
+	conn := db.DB.Conn()
+	conn.Drop()
+	conn.Close()
+	return nil
 }
 
-func ValidateResult(ctx *fasthttp.RequestCtx) (res *ResultTournamentStruct, err error) {
-	ct := ctx.Request.Header.Peek("Content-Type")
+func ValidateResult(ctx *routing.Context) (res *ResultTournamentStruct, err error) {
+	ct := ctx.Request.Header.Peek(strContentType)
 
 	// Check content type
-	if !strings.Contains(string(ct), "application/json") {
-		err = errors.New(INVALID_DATA)
+	if !strings.Contains(string(ct), strJSON) {
+		err = errorInvalidData
 		return
 	}
 
@@ -49,13 +44,13 @@ func ValidateResult(ctx *fasthttp.RequestCtx) (res *ResultTournamentStruct, err 
 
 	// Validate struct
 	if res.Winners == nil || res.ID == nil {
-		err = errors.New(INVALID_DATA)
+		err = errorInvalidData
 		return
 	}
 
 	for _, w := range *res.Winners {
 		if w.ID == nil || w.Prize == nil || *w.Prize < 0 {
-			err = errors.New(INVALID_DATA)
+			err = errorInvalidData
 			return
 		}
 	}

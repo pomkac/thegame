@@ -12,6 +12,8 @@ RUN sudo tar -C /usr/local -xzf go1.9.linux-amd64.tar.gz && \
 
 ENV PATH=${PATH}:/usr/local/go/bin GOROOT=/usr/local/go GOPATH=/root/go
 
+RUN go get github.com/pomkac/mnemonic
+
 RUN go get github.com/pomkac/thegame 
 
 RUN go build github.com/pomkac/thegame

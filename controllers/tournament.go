@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/valyala/fasthttp"
 	"github.com/pomkac/thegame/db"
+	"github.com/qiangxue/fasthttp-routing"
 )
 
 type ResultTournamentStruct struct {
@@ -15,150 +16,193 @@ type Winner struct {
 	Prize *float64 `json:"prize"`
 }
 
-func AnnounceTournament(ctx *fasthttp.RequestCtx) {
+const (
+	QueryTournamentId = "tournamentId"
+	QueryBackerId     = "backerId"
+	QueryDeposit      = "deposit"
+)
+
+func AnnounceTournament(ctx *routing.Context) (err error) {
+	conn := db.DB.Conn()
+	query := ctx.QueryArgs()
+	respError := fasthttp.StatusOK
+
+	defer func() {
+		conn.Close()
+		if respError != fasthttp.StatusOK {
+			ctx.SetStatusCode(respError)
+			ctx.SetConnectionClose()
+		}
+	}()
+
 	// Check if "tournamentId" and "deposit" exists in query string
-	if !ctx.QueryArgs().Has("tournamentId") || !ctx.QueryArgs().Has("deposit") {
-		ctx.SetStatusCode(ERROR_BAD_REQUEST)
-		ctx.SetConnectionClose()
+	if !query.Has(QueryTournamentId) || !query.Has(QueryDeposit) {
+		respError = fasthttp.StatusBadRequest
 		return
 	}
 
-	deposit, err := ctx.QueryArgs().GetUfloat("deposit")
+	id := string(query.Peek(QueryTournamentId))
+	deposit, err := query.GetUfloat(QueryDeposit)
 
-	// Check if "deposit" is float
-	if err != nil {
-		ctx.SetStatusCode(ERROR_BAD_REQUEST)
-		ctx.SetConnectionClose()
+	// Check if "deposit" is float and is non-negative number
+	if err != nil || deposit < 0 {
+		respError = fasthttp.StatusBadRequest
 		return
 	}
 
-	// Check if "deposit" is non-negative number
-	if deposit < 0 {
-		ctx.SetStatusCode(ERROR_BAD_REQUEST)
-		ctx.SetConnectionClose()
+	tournament, err := db.Tournaments.Get(id, &conn)
+
+	// Return error if tournament exists
+	if tournament.ID != "" {
+		respError = fasthttp.StatusNotAcceptable
 		return
 	}
-
-	id := string(ctx.QueryArgs().Peek("tournamentId"))
 
 	// Create tournament
-	tournament := &db.Tournament{ID: id, Deposit: deposit}
+	tournament = db.Tournament{ID: id, Deposit: deposit}
 	tournament.Players = make(map[string]*db.TournamentPlayer)
 
 	// Try save tournament
-	err = db.Tournaments.Set(tournament)
+	err = tournament.Save(&conn)
 
-	// Return error if tournament exists
+	// Return error if tournament not saved
 	if err != nil {
-		ctx.SetStatusCode(ERROR_NOT_ACCEPTABLE)
-		ctx.SetConnectionClose()
+		respError = fasthttp.StatusBadRequest
 		return
 	}
+	return
 }
 
-func JoinTournament(ctx *fasthttp.RequestCtx) {
+func JoinTournament(ctx *routing.Context) (e error) {
+	conn := db.DB.Conn()
+	query := ctx.QueryArgs()
+	respError := fasthttp.StatusOK
+
+	defer func() {
+		if respError != fasthttp.StatusOK {
+			conn.Rollback()
+			ctx.SetStatusCode(respError)
+			ctx.SetConnectionClose()
+		}
+		conn.Close()
+	}()
+
 	// Check if "tournamentId" and "playerId" exists in query string
-	if !ctx.QueryArgs().Has("tournamentId") || !ctx.QueryArgs().Has("playerId") {
-		ctx.SetStatusCode(ERROR_BAD_REQUEST)
-		ctx.SetConnectionClose()
+	if !query.Has(QueryTournamentId) || !ctx.QueryArgs().Has(QueryPlayerId) {
+		respError = fasthttp.StatusBadRequest
 		return
 	}
 
-	tournamentId := string(ctx.QueryArgs().Peek("tournamentId"))
-	playerId := string(ctx.QueryArgs().Peek("playerId"))
-	backerIds := ctx.QueryArgs().PeekMulti("backerId")
+	tournamentId := string(ctx.QueryArgs().Peek(QueryTournamentId))
+	playerId := string(ctx.QueryArgs().Peek(QueryPlayerId))
+	backerIds := ctx.QueryArgs().PeekMulti(QueryBackerId)
 
-	tournament, err := db.Tournaments.Get(tournamentId)
+	conn.BeginTransaction()
+
+	tournament, err := db.Tournaments.Get(tournamentId, &conn)
 
 	// Return error if tournament not exists
 	if err != nil {
-		ctx.SetStatusCode(ERROR_NOT_FOUND)
-		ctx.SetConnectionClose()
+		respError = fasthttp.StatusNotFound
 		return
 	}
 
 	// Return error if tournament ended
 	if tournament.Ended {
-		ctx.SetStatusCode(ERROR_FORBIDDEN)
-		ctx.SetConnectionClose()
+		respError = fasthttp.StatusForbidden
 		return
 	}
 
 	// Return error if player exists in current tournament
-	if _, ok := tournament.Players[playerId]; ok{
-		ctx.SetStatusCode(ERROR_NOT_ACCEPTABLE)
-		ctx.SetConnectionClose()
+	if _, ok := tournament.Players[playerId]; ok {
+		respError = fasthttp.StatusNotAcceptable
 		return
 	}
 
-	player, err := db.Players.Get(playerId)
+	// Calculate bid
+	bid := tournament.Deposit / float64(len(backerIds)+1)
+
+	player, err := db.Players.Get(playerId, &conn)
 
 	// Return error if player not exists
 	if err != nil {
-		ctx.SetStatusCode(ERROR_NOT_FOUND)
-		ctx.SetConnectionClose()
+		respError = fasthttp.StatusNotFound
 		return
 	}
 
-	// Create tournament player
-	tPlayer := &db.TournamentPlayer{ID: player.ID}
+	if player.Points-bid < 0 {
+		respError = fasthttp.StatusPaymentRequired
+		return
+	}
 
-	tPlayer.Bakers = make([]*db.Player, len(backerIds)+1)
-	tPlayer.Bakers[0] = player
+	player.Points -= bid
+	player.Save(&conn)
+
+	// Create tournament player
+	tournamentPlayer := &db.TournamentPlayer{ID: player.ID}
+
+	tournamentPlayer.Bakers = make([]db.Player, len(backerIds)+1)
+	tournamentPlayer.Bakers[0] = player
 
 	// Find and add backers to player
 	if len(backerIds) > 0 {
 		for i := 0; i < len(backerIds); i++ {
-			backer, err := db.Players.Get(string(backerIds[i]))
+			backer, err := db.Players.Get(string(backerIds[i]), &conn)
 			// Return error if backer not exists
 			if err != nil {
-				ctx.SetStatusCode(ERROR_NOT_FOUND)
-				ctx.SetConnectionClose()
+				respError = fasthttp.StatusNotFound
 				return
 			}
 
-			tPlayer.Bakers[i+1] = backer
+			// Check player balance
+			if backer.Points-bid < 0 {
+				respError = fasthttp.StatusPaymentRequired
+				return
+			}
+
+			// Create bid
+			backer.Points -= bid
+			backer.Save(&conn)
+
+			tournamentPlayer.Bakers[i+1] = backer
 		}
-	}
-
-	// Calculate bid
-	bid := tournament.Deposit / float64(len(tPlayer.Bakers))
-
-	// Check player balance
-	for i := 0; i < len(tPlayer.Bakers); i++ {
-		if tPlayer.Bakers[i].Points < bid {
-			ctx.SetStatusCode(ERROR_PAYMENT_REQUIRED)
-			ctx.SetConnectionClose()
-			return
-		}
-	}
-
-	// Create bid
-	for i := 0; i < len(tPlayer.Bakers); i++ {
-		tPlayer.Bakers[i].Points -= bid
 	}
 
 	// Add player to current tournament
-	tournament.Players[tPlayer.ID] = tPlayer
+	tournament.Players[tournamentPlayer.ID] = tournamentPlayer
+	tournament.Save(&conn)
+	conn.Commit()
+	return
 }
 
-func ResultTournament(ctx *fasthttp.RequestCtx) {
+func ResultTournament(ctx *routing.Context) (err error) {
+	conn := db.DB.Conn()
+	respError := fasthttp.StatusOK
+
+	defer func() {
+		if respError != fasthttp.StatusOK {
+			conn.Rollback()
+			ctx.SetStatusCode(respError)
+			ctx.SetConnectionClose()
+		}
+		conn.Close()
+	}()
 
 	res, err := ValidateResult(ctx)
 
 	// Return error if request is not valid
 	if err != nil {
-		ctx.SetStatusCode(ERROR_BAD_REQUEST)
-		ctx.SetConnectionClose()
+		respError = fasthttp.StatusBadRequest
 		return
 	}
 
-	tournament, err := db.Tournaments.Get(*res.ID)
+	conn.BeginTransaction()
+
+	tournament, err := db.Tournaments.Get(*res.ID, &conn)
 
 	// Return error if tournament not exists
 	if err != nil {
-		ctx.SetStatusCode(ERROR_NOT_FOUND)
-		ctx.SetConnectionClose()
+		respError = fasthttp.StatusNotFound
 		return
 	}
 
@@ -167,11 +211,16 @@ func ResultTournament(ctx *fasthttp.RequestCtx) {
 		if player, ok := tournament.Players[*winner.ID]; ok {
 			prize := *winner.Prize / float64(len(player.Bakers))
 			for i := 0; i < len(player.Bakers); i++ {
+
 				player.Bakers[i].Points += prize
+				player.Bakers[i].Save(&conn)
 			}
 		}
 	}
 
 	// Set end flag for current tournament
 	tournament.Ended = true
+	tournament.Save(&conn)
+	conn.Commit()
+	return
 }
