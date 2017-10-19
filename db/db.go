@@ -13,7 +13,7 @@ var (
 )
 
 func init() {
-	config := &mnemonic.Config{ThreadPoolSize: 100,
-		ConnPoolSize: 100}
+	config := &mnemonic.Config{ThreadPoolSize: 5000,
+		ConnPoolSize: 5000}
 	DB = mnemonic.NewDB(config)
 }
