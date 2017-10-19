@@ -5,7 +5,7 @@ import (
 	"strings"
 	"encoding/json"
 	"github.com/pomkac/thegame/db"
-	"github.com/qiangxue/fasthttp-routing"
+	"github.com/valyala/fasthttp"
 )
 
 const (
@@ -15,14 +15,14 @@ const (
 
 var errorInvalidData = errors.New("invalid data")
 
-func Reset(_ *routing.Context) error {
+func Reset(_ *fasthttp.RequestCtx) error {
 	conn := db.DB.Conn()
 	conn.Drop()
 	conn.Close()
 	return nil
 }
 
-func ValidateResult(ctx *routing.Context) (res *ResultTournamentStruct, err error) {
+func ValidateResult(ctx *fasthttp.RequestCtx) (res *ResultTournamentStruct, err error) {
 	ct := ctx.Request.Header.Peek(strContentType)
 
 	// Check content type

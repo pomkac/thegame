@@ -9,5 +9,11 @@ var (
 	errorInvalidId    = errors.New("Invalid ID")
 	errorInvalidValue = errors.New("Invalid value")
 
-	DB = mnemonic.NewDB()
+	DB *mnemonic.Database
 )
+
+func init() {
+	config := &mnemonic.Config{ThreadPoolSize: 100,
+		ConnPoolSize: 100}
+	DB = mnemonic.NewDB(config)
+}

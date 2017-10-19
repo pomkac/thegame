@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/valyala/fasthttp"
 	"github.com/pomkac/thegame/db"
-	"github.com/qiangxue/fasthttp-routing"
 )
 
 const (
@@ -14,7 +13,7 @@ const (
 	ContentTypeJSON = "application/json; charset=utf-8"
 )
 
-func PlayerFund(ctx *routing.Context) (err error) {
+func PlayerFund(ctx *fasthttp.RequestCtx) (err error) {
 	query := ctx.QueryArgs()
 	respError := fasthttp.StatusOK
 
@@ -40,14 +39,14 @@ func PlayerFund(ctx *routing.Context) (err error) {
 		return
 	}
 
-	player := db.Player{ID: id}
+	player := &db.Player{ID: id}
 	conn := db.DB.Conn()
 	player.FundTake(points, &conn)
 	conn.Close()
 	return
 }
 
-func PlayerTake(ctx *routing.Context) (err error) {
+func PlayerTake(ctx *fasthttp.RequestCtx) (err error) {
 	conn := db.DB.Conn()
 	query := ctx.QueryArgs()
 	respError := fasthttp.StatusOK
@@ -92,7 +91,7 @@ func PlayerTake(ctx *routing.Context) (err error) {
 	return
 }
 
-func PlayerBalance(ctx *routing.Context) (err error) {
+func PlayerBalance(ctx *fasthttp.RequestCtx) (err error) {
 	query := ctx.QueryArgs()
 	respError := fasthttp.StatusOK
 

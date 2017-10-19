@@ -3,7 +3,6 @@ package controllers
 import (
 	"github.com/valyala/fasthttp"
 	"github.com/pomkac/thegame/db"
-	"github.com/qiangxue/fasthttp-routing"
 )
 
 type ResultTournamentStruct struct {
@@ -22,7 +21,7 @@ const (
 	QueryDeposit      = "deposit"
 )
 
-func AnnounceTournament(ctx *routing.Context) (err error) {
+func AnnounceTournament(ctx *fasthttp.RequestCtx) (err error) {
 	conn := db.DB.Conn()
 	query := ctx.QueryArgs()
 	respError := fasthttp.StatusOK
@@ -73,7 +72,7 @@ func AnnounceTournament(ctx *routing.Context) (err error) {
 	return
 }
 
-func JoinTournament(ctx *routing.Context) (e error) {
+func JoinTournament(ctx *fasthttp.RequestCtx) (e error) {
 	conn := db.DB.Conn()
 	query := ctx.QueryArgs()
 	respError := fasthttp.StatusOK
@@ -175,7 +174,7 @@ func JoinTournament(ctx *routing.Context) (e error) {
 	return
 }
 
-func ResultTournament(ctx *routing.Context) (err error) {
+func ResultTournament(ctx *fasthttp.RequestCtx) (err error) {
 	conn := db.DB.Conn()
 	respError := fasthttp.StatusOK
 

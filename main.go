@@ -3,29 +3,50 @@ package main
 import (
 	"log"
 	"runtime"
-	"github.com/qiangxue/fasthttp-routing"
 	"github.com/valyala/fasthttp"
 	"github.com/pomkac/thegame/controllers"
 )
 
-func main() {
-	runtime.GOMAXPROCS(1)
-
-	router := routing.New()
-
+const (
 	// Player routes
-	router.Get("/fund", controllers.PlayerFund)
-	router.Get("/take", controllers.PlayerTake)
-	router.Get("/balance", controllers.PlayerBalance)
+	pathFund    = "/fund"
+	pathTake    = "/take"
+	pathBalance = "/balance"
 
 	// Tournament routes
-	router.Get("/announceTournament", controllers.AnnounceTournament)
-	router.Get("/joinTournament", controllers.JoinTournament)
-	router.Post("/resultTournament", controllers.ResultTournament)
+	pathAnnounceTournament = "/announceTournament"
+	pathJoinTournament     = "/joinTournament"
+	pathResultTournament   = "/resultTournament"
 
 	// Reset route
-	router.Get("/reset", controllers.Reset)
+	pathReset = "/reset"
+)
+
+func HandleRequest(ctx *fasthttp.RequestCtx) {
+	path := string(ctx.Path())
+	switch path {
+	case pathFund:
+		controllers.PlayerFund(ctx)
+	case pathTake:
+		controllers.PlayerTake(ctx)
+	case pathBalance:
+		controllers.PlayerBalance(ctx)
+	case pathAnnounceTournament:
+		controllers.AnnounceTournament(ctx)
+	case pathJoinTournament:
+		controllers.JoinTournament(ctx)
+	case pathResultTournament:
+		controllers.ResultTournament(ctx)
+	case pathReset:
+		controllers.Reset(ctx)
+	default:
+		ctx.SetStatusCode(fasthttp.StatusNotFound)
+	}
+}
+
+func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// Serve
-	log.Fatal(fasthttp.ListenAndServe(":80", router.HandleRequest))
+	log.Fatal(fasthttp.ListenAndServe(":80", HandleRequest))
 }
